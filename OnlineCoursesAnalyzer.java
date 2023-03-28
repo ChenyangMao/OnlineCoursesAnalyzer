@@ -22,55 +22,54 @@ import java.util.stream.Collectors;
 
 public class OnlineCoursesAnalyzer {
 
-    String datasetPath;
+  String datasetPath;
 
-    public OnlineCoursesAnalyzer(String datasetPath) {
-        this.datasetPath = datasetPath;
-    }
+  public OnlineCoursesAnalyzer(String datasetPath) {
+    this.datasetPath = datasetPath;
+  }
 
-    public Map<String, Integer> getPtcpCountByInst() {
-        Map<String, Integer> ptcpCountByInst = new HashMap<>();
+  public Map<String, Integer> getPtcpCountByInst() {
+    Map<String, Integer> ptcpCountByInst = new HashMap<>();
 
-        try (FileInputStream fis = new FileInputStream(datasetPath);
-            InputStreamReader isr = new InputStreamReader(fis);
-            BufferedReader reader = new BufferedReader(isr)) {
+    try (FileInputStream fis = new FileInputStream(datasetPath);
+      InputStreamReader isr = new InputStreamReader(fis);
+      BufferedReader reader = new BufferedReader(isr)) {
 
-            String line;
-            line = reader.readLine();
-            String[] titles = line.split(",");
-            String institution = "Institution";
-            String count = "Participants (CourseBF Content Accessed)";
-            int ins = 0;
-            int cnt = 8;
-            for (int i = 0; i < titles.length; i++) {
-                if (titles[i].equals("Institution")) {
-                    ins = i;
-                } else if (titles[i].equals("Participants (CourseBF Content Accessed)")) {
-                    cnt = i;
-                }
-            }
-
-            while ((line = reader.readLine()) != null) {
-                String[] columns = line.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)");
-                for (String column : columns) {
-                    column.replaceAll("^\"|\"$", "");
-                }
+      String line;
+      line = reader.readLine();
+      String[] titles = line.split(",");
+      String institution = "Institution";
+      String count = "Participants (CourseBF Content Accessed)";
+      int ins = 0;
+      int cnt = 8;
+      for (int i = 0; i < titles.length; i++) {
+          if (titles[i].equals("Institution")) {
+              ins = i;
+          } else if (titles[i].equals("Participants (CourseBF Content Accessed)")) {
+              cnt = i;
+          }
+      }
+      while ((line = reader.readLine()) != null) {
+          String[] columns = line.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)");
+          for (String column : columns) {
+              column.replaceAll("^\"|\"$", "");
+          }
 
 //                String[] columns = line.split(",");
-                String temp_s = columns[ins];
-                int temp_i = Integer.parseInt(columns[cnt]);
+          String temp_s = columns[ins];
+          int temp_i = Integer.parseInt(columns[cnt]);
 
-                if (ptcpCountByInst.containsKey(temp_s)) {
-                    ptcpCountByInst.put(temp_s, ptcpCountByInst.get(temp_s) + temp_i);
-                } else {
-                    ptcpCountByInst.put(temp_s, temp_i);
-                }
+          if (ptcpCountByInst.containsKey(temp_s)) {
+              ptcpCountByInst.put(temp_s, ptcpCountByInst.get(temp_s) + temp_i);
+          } else {
+              ptcpCountByInst.put(temp_s, temp_i);
+          }
 
-            }
+      }
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    } catch (IOException e) {
+        e.printStackTrace();
+    }
 
         Map<String, Integer> sortedMap = ptcpCountByInst.entrySet().stream()
             .sorted(Map.Entry.comparingByKey())
@@ -432,7 +431,7 @@ public class OnlineCoursesAnalyzer {
                         courses.add(course);
                         courses_id.remove(old);
                         courses_id.put(course.number, course);
-                    }else{
+                    } else {
                         old.sumAge = old.sumAge + course.sumAge;
                         old.sumMale = old.sumMale + course.sumMale;
                         old.sumDegree = old.sumDegree + course.sumDegree;
@@ -444,16 +443,17 @@ public class OnlineCoursesAnalyzer {
                 }
             }
             for (Course course : courses) {
-                double value = Math.pow((age - course.sumAge/course.num), 2)
-                    + Math.pow((gender * 100 - course.sumMale/course.num), 2)
-                    + Math.pow((isBachelorOrHigher * 100 - course.sumDegree/course.num), 2);
+                double value = Math.pow((age - course.sumAge / course.num), 2)
+                    + Math.pow((gender * 100 - course.sumMale / course.num), 2)
+                    + Math.pow((isBachelorOrHigher * 100 - course.sumDegree / course.num), 2);
                 course.value = value;
             }
-            Collections.sort(courses, Comparator.comparingDouble(Course::getValue).thenComparing(Course::getTitle));
+            Collections.sort(courses,
+                Comparator.comparingDouble(Course::getValue).thenComparing(Course::getTitle));
 
-            int i=0;
-            while(recommend.size()<10) {
-                if(!recommend.contains(courses.get(i).title)) {
+            int i = 0;
+            while (recommend.size() < 10) {
+                if (!recommend.contains(courses.get(i).title)) {
                     recommend.add(courses.get(i).title);
                 }
                 i++;
